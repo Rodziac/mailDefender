@@ -2,9 +2,11 @@
   "name": "maildefender",
   "version": "0.0.1",
   "description": "Take control of your inbox",
+  "repository": "https://github.com/Rodziac/mailDefender",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
   },
   "author": "Umut Kaya Ilkiz <umutkaya2000@gmail.com>",
   "license": "ISC",

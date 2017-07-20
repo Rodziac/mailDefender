@@ -1,11 +1,11 @@
 // Modules
 var Imap = require('imap');
 var inspect = require('util').inspect;
-// var MongoClient = require('mongodb').MongoClient;
-// var express = require('express');
-// var app = express();
-// var server = require('http').Server(app);
-// var io = require('socket.io')(server);
+var MongoClient = require('mongodb').MongoClient;
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 // // Config
 // var webPort = 1337;
@@ -14,70 +14,139 @@ var inspect = require('util').inspect;
 // app.use(express.static('public'));
 
 // // Code
-
 // MongoClient.connect(mongoConnectionString, function(err, db) {
 //     server.listen(webPort);
 
-//     io.on('connection', function (socket) {
+//     io.on('connection', function(socket) {
+
+//         socket.on('mailLogin', function(data) {
+
+//             var imap = new Imap({
+//                 user: data.user,
+//                 password: data.password,
+//                 host: data.host,
+//                 port: data.port,
+//                 tls: data.tls
+//             });
+
+//             imap.once('ready', function() {
+//                 imap.end();
+//             });
+
+//             imap.once('error', function(err) {
+//                 socket.emit("imapLoginError");
+//             });
+
+//             imap.once('end', function() {
+//                 socket.emit("imapLoginSuccess");
+//             });
+
+//             imap.connect();
+
+//         });
 
 //     });
 // });
 
-var imap = new Imap({
-  user: '',
-  password: '',
-  host: 'imap.gmail.com',
-  port: 993,
-  tls: true
-});
+// var imap = new Imap({
+//     user: '',
+//     password: '',
+//     host: 'imap.gmail.com',
+//     port: 993,
+//     tls: true
+// });
 
-imap.once('ready', function() {
+// imap.once('ready', function() {
 
-    console.log("Connected! Loading INBOX...");
+//     console.log("Connected! Loading INBOX...");
 
-    imap.openBox('INBOX', false, function(err, box) {
+//     imap.openBox('INBOX', false, function(err, box) {
 
-        console.log("INBOX loaded! Filtering...");
+//         console.log("INBOX loaded! Searching...");
 
-        var filter = imap.seq.fetch("*", {
-            markSeen: false,
-            struct: true,
-            bodies: ''
-        });
+//         imap.search(["ALL"], function(err, results) {
 
-        filter.on('message', function(mail) {
+//             console.log("Search completed! Filtering...");
 
-            console.log("Message found! Parsing...");
+//             var fetch = imap.fetch(results, {
+//                 markSeen: false,
+//                 struct: true,
+//                 bodies: ['HEADER', 'TEXT']
+//             });
 
-            mail.on('body', function(stream, info) {
+//             var mailData = {};
+//             var fetchSuccess = true;
 
-                var buffer = '';
+//             fetch.on('message', function(mail) {
 
-                stream.on('data', function(chunk) {
-                  buffer += chunk.toString('utf8');
-                });
+//                 mailData = {};
 
-                stream.once('end', function() {
-                  console.log("Loaded body! I cannot really log it yet though...");
-                });
-            });
+//                 console.log("Message found! Parsing...");
 
-            mail.once('attributes', function(attrs) {
-                console.log("Loaded attributes! I cannot really log it yet though...");
-            });
+//                 mail.on('body', function(stream, info) {
+//                     console.log("Incoming info! " + info.which);
 
-        });
+//                     var buffer = '';
 
-        f.once('end', function() {
+//                     stream.on('data', function(chunk) {
+//                       buffer += chunk.toString('utf8');
+//                     });
 
-            console.log("Completed All Messages");
-            imap.end();
+//                     stream.once('end', function() {
 
-        });
+//                         if (info.which == "TEXT") {
+//                             mailData.mailBody = buffer;
+//                             console.log("Loaded body!");
 
-    });
+//                         } else if (info.which == "HEADER") {
+//                             buffer = Imap.parseHeader(buffer);
+//                             mailData.deliveredTo = buffer["delivered-to"];
+//                             mailData.to = buffer["to"];
+//                             mailData.from = buffer["from"];
+//                             mailData.subject = buffer["subject"];
+//                             mailData.threadTopic = buffer["thread-topic"];
+//                             mailData.arcAuthResults = buffer["arc-authentication-results"];
+//                             mailData.authResults = buffer["authentication-results"];
+//                             mailData.return = buffer["return-path"];
+//                             console.log("Loaded headers!");
+//                         }
 
-});
+//                     });
+//                 });
 
-console.log("Connecting...");
-imap.connect();
+//                 mail.once('attributes', function(attrs) {
+//                     mailData.flags = attrs.flags;
+//                     console.log("Loaded attributes!");
+//                 });
+
+//             });
+
+//             fetch.on('error', function(err) {
+//                 fetchSuccess = false;
+//                 console.log(err);
+//             });
+
+//             fetch.once('end', function() {
+//                 if (fetchSuccess) {
+//                     console.log("mailData: " + JSON.stringify(mailData));
+//                 }
+//                 console.log("Ended transaction.");
+//                 imap.end();
+//             });
+
+//         });
+
+//     });
+
+// });
+
+// imap.once('error', function(err) {
+//     console.log("imapLoginError");
+// });
+
+// imap.once('end', function() {
+//     console.log("imapLoginSuccess");
+// });
+
+// console.log("Connecting...");
+// imap.connect();
